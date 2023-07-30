@@ -1,6 +1,7 @@
 package com.svc.jogging.service.impl;
 
 import com.svc.jogging.model.dto.StepDto;
+import com.svc.jogging.model.exception.BusinessException;
 import com.svc.jogging.model.req.StepCountReq;
 import com.svc.jogging.repository.entity.StepEntity;
 import com.svc.jogging.repository.facade.StepRepository;
@@ -26,25 +27,36 @@ public class StepServiceImpl implements StepService {
     @Override
     public StepDto recordUserStepCountToday(StepCountReq req) {
         String userId = req.getUserId();
-        String recordedDate = TimeUtil.getDateOfTime(Instant.now(), req.getZoneId());
-        Optional<StepEntity> optional = stepRepository.findByUserIdAndRecordedDateEqual(userId, recordedDate);
+        req.setRecordedDate(TimeUtil.getDateOfTime(Instant.now(), req.getZoneId()));
+        Optional<StepEntity> optional = stepRepository.findByUserIdAndRecordedDateEquals(userId, req.getRecordedDate());
         // chưa có thì record mới
         if (optional.isEmpty()) {
+            validateInitStepReq(req);
             return stepConverter.toDto(stepRepository.save(stepConverter.fromReq(req)));
         }
 
         var stepEntity = optional.get();
-        validateStepReq(req, stepEntity);
+        validateUpdateStepReq(req, stepEntity);
         stepConverter.updateStep(req, stepEntity);
 
         return stepConverter.toDto(stepRepository.save(stepEntity));
     }
 
-    private void validateStepReq(StepCountReq req, StepEntity entity) {
+    private void validateUpdateStepReq(StepCountReq req, StepEntity entity) {
         if (req.getSteps() < entity.getSteps()) {
-            throw new RuntimeException("Can not record new steps which are less than previous steps");
+            throw new BusinessException("Can not record new steps which are less than previous steps");
         }
         // tùy vào yêu cầu nghiệp vụ mà sẽ check thêm steps trong khoảng thời gian và địa điểm/timezone có hợp lý hay không
+    }
+
+    private void validateInitStepReq(StepCountReq req) {
+        /*
+        validate initial data dựa vào yêu cầu nghiệp vụ
+        lần đầu record số bước chân luôn bằng 0
+        */
+        if (req.getSteps() > 0) {
+            throw new BusinessException("Steps can not be greater than 0 for the first time recorded");
+        }
     }
 
     @Override

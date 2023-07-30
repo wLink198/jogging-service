@@ -12,7 +12,7 @@ public interface StepRepository extends MongoRepository<StepEntity, String>, Ste
     String CACHE_NAME = "steps";
 
     @Cacheable(value = CACHE_NAME, key = "#userId + '_' + #recordedDate")
-    Optional<StepEntity> findByUserIdAndRecordedDateEqual(String userId, String recordedDate);
+    Optional<StepEntity> findByUserIdAndRecordedDateEquals(String userId, String recordedDate);
 
     @CachePut(value = CACHE_NAME, key = "#entity.userId + '_' + #entity.recordedDate")
     <S extends StepEntity> S save(S entity);

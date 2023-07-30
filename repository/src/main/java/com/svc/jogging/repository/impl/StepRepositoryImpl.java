@@ -22,8 +22,11 @@ public class StepRepositoryImpl implements StepRepositoryCustom {
     @Override
     public List<StepEntity> findTopUsersByTimeRange(int limit, Instant startTime, Instant endTime) {
         MatchOperation match = Aggregation.match(Criteria.where("endedAt").gte(startTime).lt(endTime));
-        GroupOperation group = Aggregation.group("userId").sum("steps").as("totalSteps");
-        SortOperation sort = Aggregation.sort(Sort.Direction.DESC, "totalSteps");
+        GroupOperation group = Aggregation.group("userId").sum("steps").as("steps")
+                .first("userId").as("userId")
+                .first("startedAt").as("startedAt")
+                .first("endedAt").as("endedAt");
+        SortOperation sort = Aggregation.sort(Sort.Direction.DESC, "steps");
         LimitOperation limitOp = Aggregation.limit(limit);
 
         Aggregation agg = Aggregation.newAggregation(match, group, sort, limitOp);
@@ -43,6 +46,6 @@ public class StepRepositoryImpl implements StepRepositoryCustom {
         AggregationResults<Document> results = mongoTemplate.aggregate(
                 aggregation, StepEntity.COLLECTION_NAME, Document.class);
 
-        return results.getUniqueMappedResult() != null ? results.getUniqueMappedResult().getLong("totalStepCount") : 0;
+        return results.getUniqueMappedResult() != null ? results.getUniqueMappedResult().getLong("totalSteps") : 0;
     }
 }

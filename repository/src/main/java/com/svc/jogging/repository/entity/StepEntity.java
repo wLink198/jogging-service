@@ -16,7 +16,7 @@ public class StepEntity {
     @Id
     private String _id;
     private String userId;
-    private int steps;
+    private long steps;
     private String fromLocation;
     private String toLocation;
     private String recordedDate;
