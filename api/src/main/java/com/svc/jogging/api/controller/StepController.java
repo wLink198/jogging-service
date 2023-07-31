@@ -23,11 +23,11 @@ public class StepController {
 
     private final StepService stepService;
 
-    @Operation(summary = "API ghi nhận số bước chân trong ngày hiện tại từ phía ứng dụng")
+    @Operation(summary = "API for recording the number of steps taken by users in the current day from the application")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trả về StepDto với id của entity mới được tạo",
+            @ApiResponse(responseCode = "200", description = "Return StepDto with the ID of the newly created entity",
                     content = @Content(schema = @Schema(implementation = StepDto.class))),
-            @ApiResponse(responseCode = "400", description = "Trả về message lỗi với tùy từng trường hợp:<br>" +
+            @ApiResponse(responseCode = "400", description = "Return error message based on situations such as:<br>" +
                     "Can not record new steps which are less than previous steps<br>" +
                     "Steps can not be greater than 0 for the first time recorded<br>" +
                     "Steps cannot be negative")
@@ -42,18 +42,18 @@ public class StepController {
         return ResponseData.builder().data(stepService.recordUserStepCountToday(req)).build();
     }
 
-    @Operation(summary = "API lấy bảng xếp hạng để hiển thị ở ứng dụng")
+    @Operation(summary = "API for retrieving the leaderboard to display in the application")
     @GetMapping("/top/{limit}")
     public ResponseData findTopUsersByDate(
-            @Parameter(description = "xếp hạng top người đi bộ theo limit", schema = @Schema(type = "integer"))
+            @Parameter(description = "Top ranking of walkers according to the limit parameter", schema = @Schema(type = "integer"))
             @PathVariable int limit,
-            @Parameter(description = "xếp hạng theo ngày, định dạng yyyy-MM-dd", schema = @Schema(type = "string"))
+            @Parameter(description = "Ranking by date with pattern: yyyy-MM-dd", schema = @Schema(type = "string"))
             @RequestParam(required = false) String date,
             @RequestParam(required = false, defaultValue = ZoneIds.DEFAULT_ZONE_ID) String zoneId) {
         return ResponseData.builder().data(stepService.findTopUsersByDate(limit, date, zoneId)).build();
     }
 
-    @Operation(summary = "API lấy tổng số bước chân của người dùng theo tuần hiện tại")
+    @Operation(summary = "API for retrieving the total number of steps taken by a user in the current week")
     @GetMapping("/count/week")
     public ResponseData countStepsByUserCurrentWeek(
             @RequestHeader String userId,
@@ -61,7 +61,7 @@ public class StepController {
         return ResponseData.builder().data(stepService.countStepsByUserCurrentWeek(userId, zoneId)).build();
     }
 
-    @Operation(summary = "API lấy tổng số bước chân của người dùng theo tháng hiện tại")
+    @Operation(summary = "API for retrieving the total number of steps taken by a user in the current month")
     @GetMapping("/count/month")
     public ResponseData countStepsByUserCurrentMonth(
             @RequestHeader String userId,

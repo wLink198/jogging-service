@@ -1,9 +1,11 @@
 package com.svc.jogging.service.util;
 
+import com.svc.jogging.model.exception.BusinessException;
 import lombok.Data;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class TimeUtil {
 
@@ -26,7 +28,12 @@ public class TimeUtil {
     }
 
     public static TimeOfDay getTimeOfDay(String date, String zoneId) {
-        LocalDate localDate = LocalDate.parse(date);
+        LocalDate localDate;
+        try {
+            localDate = LocalDate.parse(date);
+        } catch (DateTimeParseException e) {
+            throw new BusinessException(e.getMessage());
+        }
         ZoneId zone = ZoneId.of(zoneId);
         ZonedDateTime startOfDay = localDate.atStartOfDay(zone);
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
