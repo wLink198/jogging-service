@@ -23,7 +23,8 @@ public class StepController {
 
     private final StepService stepService;
 
-    @Operation(summary = "API for recording the number of steps taken by users in the current day from the application")
+    @Operation(summary = "API for recording the number of steps taken by users in the current day from the application",
+            description = "First time start recording user steps for current day, the steps must be 0")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Return StepDto with the ID of the newly created entity",
                     content = @Content(schema = @Schema(implementation = StepDto.class))),
