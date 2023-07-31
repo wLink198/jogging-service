@@ -5,6 +5,7 @@ import com.svc.jogging.model.res.ResponseData;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 
@@ -17,7 +18,9 @@ public class RestHelper {
 			return ResponseEntity.status(HttpStatus.OK).body((T) res);
 		}
 
-		if (res.getException() instanceof BusinessException || res.getException() instanceof MissingRequestHeaderException) {
+		if (res.getException() instanceof BusinessException
+				|| res.getException() instanceof MissingRequestHeaderException
+				|| res.getException() instanceof HttpMediaTypeNotSupportedException) {
 			res.setError(new ResponseData.Error(HttpStatus.BAD_REQUEST.value(), res.getException().getMessage()));
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body((T) res);
 		}
